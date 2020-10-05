@@ -5,7 +5,11 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const encryption = require('mongoose-encryption');
+
+//const encryption = require('mongoose-encryption');
+
+const md5 = require('md5');
+
 const port = 3000;
 const app = express();
 
@@ -39,7 +43,7 @@ const userAuthSchema = new mongoose.Schema({
 });
 
 // defining encryption
-userAuthSchema.plugin(encryption, { secret: process.env.SECRET, encryptedFields: ['userPassword'] });
+// userAuthSchema.plugin(encryption, { secret: process.env.SECRET, encryptedFields: ['userPassword'] });
 
 // creating Model (or collection (Act as a table)) for the Database
 const UserAuth = mongoose.model('UserAuth', userAuthSchema);
@@ -63,7 +67,9 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const newUser = new UserAuth({
     userEmail: req.body.username,
-    userPassword: req.body.password,
+
+    // using Hashing technique md5 instead of encryption
+    userPassword: md5(req.body.password),
   });
 
   newUser.save((err) => {
